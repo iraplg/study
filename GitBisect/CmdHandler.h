@@ -41,6 +41,7 @@ struct CmdHandler
 		GetExitCodeProcess(pi.hProcess, &exit_code);
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
+        CloseHandle(handleFile);
 
 		auto commits = readToLines("out.txt");
 
@@ -82,10 +83,13 @@ struct CmdHandler
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 
-		FILE* file = fopen(cmd.c_str(), "at");
-		
+		FILE* file = fopen(cmd.c_str, " rb+");
+
 		if (file)
+		{
+			fclose(file);
 			return true;
+		}
 
 		return false;
 	}
@@ -102,17 +106,17 @@ struct CmdHandler
 		int left = -1;
 		int right = commits.size() - 1;
 
-		while (left + 1 != right)
+		while (left != right - 1)
 		{
 			int mid = (right + left) / 2;
 
 			if (runCmd(commits[mid], cmd))
-				right = mid;
-			else
 				left = mid;
+			else
+				right = mid;
 		}
 
-		return commits[right];
+		return commits[left];
 	}
 
 
